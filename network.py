@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import json
+from sceleton import map_input, email_to_indexes
 
 class Network:
     body: list
@@ -8,7 +9,7 @@ class Network:
     def __init__(self, sceleton: list):
         self.body = sceleton
     def run(self, email: str, cache_signal: bool = False )->float:
-        input = self.map_input( email )
+        input = map_input( email = email, dictionary = self.body[0] )
         hidden1 = []
         for n in self.body[1]:
             weights = n[0]
@@ -28,7 +29,7 @@ class Network:
         output = ( np.array(weights) @ np.array(hidden2) ) + bias
         return 1 / ( 1 + np.exp( -output ) )
     def backpropagation( self, email: str, output: float, expected: float, learn_rate: float):
-        input = self.map_input( email )
+        input = map_input( email = email, dictionary = self.body[0] )
         # Adjust the output neuron
         sigmoid_derivative = output * (1.0 - output)
         delta_output = (output - expected) * sigmoid_derivative
@@ -57,18 +58,18 @@ class Network:
                 self.body[1][i][0][k] -= learn_rate * delta_first_hidden[i] * input[k]
         delta_input = []
         #Adjust the dictionary
-        for i in range(len( self.body[0] )):
+        for i in range(len( input )):
             error_from_next = 0.0
             for j in range(len(delta_first_hidden)):
                 error_from_next += delta_first_hidden[j] * self.body[1][j][0][i]
             delta_input.append( learn_rate * error_from_next )
         self.input_back_prop(delta = delta_input, email = email)
     def input_back_prop(self, delta: list, email: str):
-        indexes = self.email_to_index( email )
+        indexes = email_to_indexes( email = email )
         for i in range(len(delta)):
             self.body[0][indexes[i]] -= delta[i]
     def train(self, path: str):
-        learn_rate = 0.04
+        learn_rate = 0.08
         df = pd.read_csv(path)
         df = df.sample(frac=1, random_state=42).reset_index(drop=True)
         train_data = df.iloc[:16000]
@@ -93,36 +94,7 @@ class Network:
     def save(self, path: str = "nn.json"):
         with open(path, 'w') as file:
             json.dump(self.body, file, indent=4)
-    def map_input(self, email: str)->list[float]:
-        indexes = self.email_to_index( email )
-        neurons = []
-        for index in indexes:
-            neurons.append( self.body[0][index] )
-        return neurons
-    def email_to_index(self, email: str)->list[int]:
-        result = []
-        indexes: list
-        for i in range( self.input_size ):
-            if i >= len(email):
-                indexes = [0, 1, 2]
-            else:
-                char = email[i]
-                if char == '@':
-                    indexes = [3, 4, 5]
-                elif char == '.':
-                    indexes = [6, 7, 8]
-                elif char in ['"', "'"]:
-                    indexes = [9, 10, 11]
-                elif char.isalpha():
-                    indexes = [12, 13, 14]
-                elif char.isdigit():
-                    indexes = [15, 16, 17]
-                elif char in ['_', '-', '+']:
-                    indexes = [18, 19, 20]
-                else:
-                    indexes = [21, 22, 23]
-            result.extend( indexes )
-        return result
+    
 
 
 

@@ -1,10 +1,10 @@
 import random
 import math
+from chars import valid_email_chars
 
-rules = 8
-rule_vector_size = 3
+char_vector_size = 3
 email_max_length = 50
-input_layer_size = rule_vector_size * email_max_length
+input_layer_size = char_vector_size * email_max_length
 
 def network() -> list:
     input = dictionary()
@@ -41,9 +41,40 @@ def output_neuron(input_size: int)->list:
         weights.append( random.uniform(-deviation, deviation) )
     return [weights, 0.0]
 
-def dictionary()->list:
-    size = rules * rule_vector_size
+def dictionary()->list[float]:
+    size = ( len(valid_email_chars) + 1 ) * char_vector_size
     neurons = []
     for i in range( size ):
         neurons.append( random.uniform(-0.1, 0.1) )
+    return neurons
+
+def char_to_indexes(char: str)->list[int]:
+    if char in valid_email_chars:
+        index = valid_email_chars.index( char )
+    else: index = len(valid_email_chars)
+    start = index * 3
+    return [
+        start,
+        start + 1,
+        start + 2
+    ]
+
+def email_to_indexes(email: str)->list[int]:
+    email = email_normal(email = email)
+    indexes = []
+    for char in email:
+        indexes.extend(char_to_indexes(char))
+    return indexes
+
+def email_normal(email: str)->str:
+    if len(email) > email_max_length: email = email[0:email_max_length]
+    elif len(email) < email_max_length: email = email.ljust(email_max_length)
+    return email
+
+def map_input(email: str, dictionary: list[float])->list[float]:
+    email = email_normal(email = email)
+    indexes = email_to_indexes( email = email )
+    neurons = []
+    for index in indexes:
+        neurons.append( dictionary[index] )
     return neurons
