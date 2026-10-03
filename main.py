@@ -4,7 +4,7 @@ import json
 from input import email_to_array
 
 print( "sceleton" )
-_sceleton = network( 50 * 7 )
+_sceleton = network()
 print( "network" )
 _network = Network( _sceleton )
 print( "train" )
