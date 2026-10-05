@@ -80,6 +80,8 @@ class Network:
             expected = 1.0 if row[1] == 1 else 0.0
             self.backpropagation( email = row[0], output = output, expected = expected, learn_rate = self.learn_rate )
 
+            if i == 10000: self.learn_rate = self.learn_rate / 4
+
             print(f"\r⏳ Processing row: {i}/16,000", end="", flush=True)
         print()
         correct = 0
