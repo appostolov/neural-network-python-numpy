@@ -6,6 +6,8 @@ from sceleton import map_input, email_to_indexes
 class Network:
     body: list
     input_size: int = 50
+    min_neuron_val = 0.001
+    learn_rate = 0.08
     def __init__(self, sceleton: list):
         self.body = sceleton
     def run(self, email: str, cache_signal: bool = False )->float:
@@ -40,7 +42,7 @@ class Network:
         delta_hidden = []
         for i in range(len( self.body[2] )):
             error_from_output = delta_output * self.body[3][0][i]
-            relu_derivative = 1.0 if self.body[2][i][2] > 0 else 0.0
+            relu_derivative = 1.0 if self.body[2][i][2] > 0 else self.min_neuron_val
             delta_hidden.append( error_from_output * relu_derivative )
             self.body[2][i][1] -= learn_rate * delta_hidden[i]
             for j in range(len(self.body[2][i][0])):
@@ -51,7 +53,7 @@ class Network:
             error_from_next = 0.0
             for j in range(len(delta_hidden)):
                 error_from_next += delta_hidden[j] * self.body[2][j][0][i]
-            relu_derivative = 1.0 if self.body[1][i][2] > 0 else 0.0
+            relu_derivative = 1.0 if self.body[1][i][2] > 0 else self.min_neuron_val
             delta_first_hidden.append( error_from_next * relu_derivative )
             self.body[1][i][1] -= learn_rate * delta_first_hidden[i]
             for k in range(len( input )):
@@ -69,7 +71,6 @@ class Network:
         for i in range(len(delta)):
             self.body[0][indexes[i]] -= delta[i]
     def train(self, path: str):
-        learn_rate = 0.08
         df = pd.read_csv(path)
         df = df.sample(frac=1, random_state=42).reset_index(drop=True)
         train_data = df.iloc[:16000]
@@ -77,7 +78,7 @@ class Network:
         for i, row in enumerate(train_data.values):
             output = self.run( email = row[0], cache_signal = True )
             expected = 1.0 if row[1] == 1 else 0.0
-            self.backpropagation( email = row[0], output = output, expected = expected, learn_rate = learn_rate )
+            self.backpropagation( email = row[0], output = output, expected = expected, learn_rate = self.learn_rate )
 
             print(f"\r⏳ Processing row: {i}/16,000", end="", flush=True)
         print()
@@ -89,7 +90,7 @@ class Network:
             if( result == expected ): correct += 1
             print(f"\r⏳ Testing row: {i}/4,000", end="", flush=True)
         print()
-        print(learn_rate)
+        print(self.learn_rate)
         print( ( correct / 4000 ) * 100 )
     def save(self, path: str = "nn.json"):
         with open(path, 'w') as file:
