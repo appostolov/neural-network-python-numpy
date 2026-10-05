@@ -52,12 +52,11 @@ def char_to_indexes(char: str)->list[int]:
     if char in valid_email_chars:
         index = valid_email_chars.index( char )
     else: index = len(valid_email_chars)
-    start = index * 3
-    return [
-        start,
-        start + 1,
-        start + 2
-    ]
+    start = index * char_vector_size
+    result = []
+    for i in range( char_vector_size ):
+        result.append( start + i )
+    return result
 
 def email_to_indexes(email: str)->list[int]:
     email = email_normal(email = email)
