@@ -1,12 +1,10 @@
-from sceleton import network
+from skeleton import network
 from network import Network
-import json
-from input import email_to_array
 
-print( "sceleton" )
-_sceleton = network()
+print( "skeleton" )
+_skeleton = network()
 print( "network" )
-_network = Network( _sceleton )
+_network = Network( _skeleton )
 print( "train" )
 _network.train("dataset.csv")
 _network.save()

@@ -1,15 +1,14 @@
 import numpy as np
 import pandas as pd
 import json
-from sceleton import map_input, email_to_indexes
+from skeleton import map_input, email_to_indexes
 
 class Network:
     body: list
-    input_size: int = 50
-    min_neuron_val = 0.001
     learn_rate = 0.08
-    def __init__(self, sceleton: list):
-        self.body = sceleton
+    min_neuron_val = 0.001
+    def __init__(self, skeleton: list):
+        self.body = skeleton
     def run(self, email: str, cache_signal: bool = False )->float:
         input = map_input( email = email, dictionary = self.body[0] )
         hidden1 = []

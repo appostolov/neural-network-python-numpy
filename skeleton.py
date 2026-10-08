@@ -4,11 +4,12 @@ from chars import valid_email_chars
 
 char_vector_size = 3
 email_max_length = 50
+first_hidden_size = 64
 input_layer_size = char_vector_size * email_max_length
 
 def network() -> list:
     input = dictionary()
-    size1 = math.floor( 64 )
+    size1 = first_hidden_size
     hidden1 = layer( size1, input_layer_size )
     size2 = math.floor( size1 / 2 )
     hidden2 = layer( size2, size1 )
